@@ -1,10 +1,6 @@
-from dataclasses import dataclass
+from ..config.benchmark import BenchmarkConfig
 
 
-@dataclass(frozen = True)
-class BenchmarkConfig :
-    """Configuration for benchmark runs"""
-
-    sizes: list[ int ]
-    repeat: int = 5
-    warmup: int = 1
+__all__ = [
+    "BenchmarkConfig",
+]
