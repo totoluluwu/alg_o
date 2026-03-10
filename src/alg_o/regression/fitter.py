@@ -1,3 +1,4 @@
+from ..exception import RegressionError
 from .base import ComplexityModel
 from .models import (
     ConstantModel,
@@ -26,7 +27,7 @@ class RegressionEngine :
             ]
         self._models = list(models)
         if len(self._models) == 0 :
-            raise ValueError("At least one complexity model must be provided.")
+            raise RegressionError("At least one complexity model must be provided.")
 
     def fit( self, sizes: list[ int ], times: list[ float ] ) -> RegressionResult :
         """Fit all models and return every fit plus the best one"""
@@ -49,15 +50,15 @@ class RegressionEngine :
     def _validate_inputs( sizes: list[ int ], times: list[ float ] ) -> None :
         """Validate input data"""
         if len(sizes) != len(times) :
-            raise ValueError("sizes and times must have the same length.")
+            raise RegressionError("sizes and times must have the same length.")
         if not sizes :
-            raise ValueError("sizes and times must not be empty.")
+            raise RegressionError("sizes and times must not be empty.")
         for size in sizes :
             if size <= 0 :
-                raise ValueError("All sizes must be strictly positive.")
+                raise RegressionError("All sizes must be strictly positive.")
         for time in times :
             if time < 0 :
-                raise ValueError("All times must be non-negative.")
+                raise RegressionError("All times must be non-negative.")
 
     def _fit_one_model(
             self, model: ComplexityModel, sizes: list[ int ], times: list[ float ],
