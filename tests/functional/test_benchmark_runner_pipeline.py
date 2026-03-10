@@ -56,7 +56,7 @@ def test_benchmark_runner_measurements_are_non_negative( benchmark_run ) -> None
     assert all(
         measured_time >= 0.0
         for point in result.points
-        for measured_time in point.times,
+        for measured_time in point.times
     )
 
 
@@ -71,5 +71,5 @@ def test_benchmark_runner_average_matches_measured_mean( benchmark_run ) -> None
 
     assert all(
         point.average_time == pytest.approx(mean(point.times), abs = 1e-12)
-        for point in result.points,
+        for point in result.points
     )

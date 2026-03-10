@@ -93,7 +93,7 @@ def test_generated_dict_str_list_int_has_expected_nested_shape( size: int ) -> N
     assert all(
         isinstance(number, int)
         for item in values.values()
-        for number in item,
+        for number in item
     )
 
 
@@ -112,10 +112,10 @@ def test_generated_list_dict_str_float_has_expected_nested_shape( size: int ) ->
     assert all(
         len(key) == inner_child_size
         for item in values
-        for key in item.keys(),
+        for key in item.keys()
     )
     assert all(
         isinstance(number, float)
         for item in values
-        for number in item.values(),
+        for number in item.values()
     )
