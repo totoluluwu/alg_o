@@ -9,26 +9,38 @@ import unittest
 ROOT_DIR = pathlib.Path(__file__).resolve().parents[ 1 ]
 SRC_DIR = ROOT_DIR / "src"
 TESTS_DIR = ROOT_DIR / "tests"
-REGRESSION_DIR = SRC_DIR / "alg_o" / "regression"
 
 if str(SRC_DIR) not in sys.path :
     sys.path.insert(0, str(SRC_DIR))
 
 
-class RegressionCoverageTests(unittest.TestCase) :
+class SourceCoverageTests(unittest.TestCase) :
 
-    def test_regression_coverage_is_above_90( self ) -> None :
+    def test_source_coverage_is_above_90( self ) -> None :
         tracer = trace.Trace(count = True, trace = False)
 
         def run_inner_suite() -> tuple[ unittest.result.TestResult, str ] :
             stream = io.StringIO()
             loader = unittest.TestLoader()
-            suite = loader.discover(start_dir = str(TESTS_DIR), pattern = "test_regression.py")
+            suite = unittest.TestSuite()
+            suite.addTests(
+                loader.discover(
+                    start_dir = str(TESTS_DIR),
+                    pattern = "test_regression.py",
+                ),
+            )
+            suite.addTests(
+                loader.discover(
+                    start_dir = str(TESTS_DIR),
+                    pattern = "test_generation.py",
+                ),
+            )
             runner = unittest.TextTestRunner(stream = stream, verbosity = 0)
             result = runner.run(suite)
             return result, stream.getvalue()
 
         self._clear_modules("test_regression")
+        self._clear_modules("test_generation")
         self._clear_modules("alg_o")
         inner_result, inner_output = tracer.runfunc(run_inner_suite)
         self.assertTrue(
@@ -41,7 +53,7 @@ class RegressionCoverageTests(unittest.TestCase) :
         total_statements = 0
         executed_statements = 0
 
-        for file_path in sorted(REGRESSION_DIR.glob("*.py")) :
+        for file_path in sorted(SRC_DIR.rglob("*.py")) :
             statement_lines = self._statement_lines(file_path)
             total_statements += len(statement_lines)
 
@@ -60,11 +72,11 @@ class RegressionCoverageTests(unittest.TestCase) :
             else 100.0
         )
 
-        print(f"Regression package coverage: {coverage:.2f}%")
+        print(f"Source coverage: {coverage:.2f}%")
         self.assertGreaterEqual(
             coverage,
             90.0,
-            msg = f"Regression coverage is below threshold: {coverage:.2f}% < 90%",
+            msg = f"Source coverage is below threshold: {coverage:.2f}% < 90%",
         )
 
     @staticmethod
