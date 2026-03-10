@@ -47,6 +47,12 @@ class SourceCoverageTests(unittest.TestCase) :
                     pattern = "test_exception.py",
                 ),
             )
+            suite.addTests(
+                loader.discover(
+                    start_dir = str(TESTS_DIR),
+                    pattern = "test_analysis.py",
+                ),
+            )
             runner = unittest.TextTestRunner(stream = stream, verbosity = 0)
             result = runner.run(suite)
             return result, stream.getvalue()
@@ -55,6 +61,7 @@ class SourceCoverageTests(unittest.TestCase) :
         self._clear_modules("test_generation")
         self._clear_modules("test_benchmark")
         self._clear_modules("test_exception")
+        self._clear_modules("test_analysis")
         self._clear_modules("alg_o")
         inner_result, inner_output = tracer.runfunc(run_inner_suite)
         self.assertTrue(
