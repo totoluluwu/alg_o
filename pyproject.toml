@@ -14,6 +14,7 @@ authors = [
     { name = "Maybe1or0" }
 ]
 dependencies = []
+# external runtime dependencies used by the library: none
 
 [tool.setuptools]
 package-dir = {"" = "src"}
