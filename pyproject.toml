@@ -13,8 +13,14 @@ authors = [
     { name = "totoluluwu" },
     { name = "Maybe1or0" }
 ]
-dependencies = []
-# external runtime dependencies used by the library: none
+dependencies = [
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
