@@ -2,6 +2,7 @@ import random
 import string
 from dataclasses import dataclass
 
+from ..exception import GenerationError, UnsupportedTypeError
 from .base import DataGenerator, TypeSpec
 from .types import (
     DictTypeSpec,
@@ -14,7 +15,7 @@ from .types import (
 
 def _validate_size( size: int ) -> int :
     if size <= 0 :
-        raise ValueError("size must be strictly positive")
+        raise GenerationError("size must be strictly positive")
     return size
 
 
@@ -76,7 +77,7 @@ class DictGenerator(DataGenerator) :
         while len(data) < current_size :
             attempts += 1
             if attempts > max_attempts :
-                raise ValueError("Unable to generate enough unique dictionary keys")
+                raise GenerationError("Unable to generate enough unique dictionary keys")
 
             key = self.key_generator.generate(child_size)
             value = self.value_generator.generate(child_size)
@@ -102,7 +103,7 @@ def build_generator( type_spec: TypeSpec ) -> DataGenerator :
 
     if isinstance(type_spec, DictTypeSpec) :
         if not isinstance(type_spec.key_type, (IntTypeSpec, FloatTypeSpec, StringTypeSpec)) :
-            raise ValueError(
+            raise UnsupportedTypeError(
                 "Unsupported dictionary key type: only int, float and str are supported",
             )
 
@@ -113,4 +114,4 @@ def build_generator( type_spec: TypeSpec ) -> DataGenerator :
             value_generator = value_generator,
         )
 
-    raise ValueError(f"Unsupported type specification: {type_spec!r}")
+    raise UnsupportedTypeError(f"Unsupported type specification: {type_spec!r}")

@@ -1,5 +1,6 @@
 from typing import get_args, get_origin
 
+from ..exception import InvalidAnnotationError, UnsupportedTypeError
 from .base import TypeSpec
 from .types import (
     DictTypeSpec,
@@ -25,24 +26,24 @@ class TypeResolver :
             return StringTypeSpec()
 
         if annotation is list :
-            raise ValueError("Malformed list annotation: expected list[T]")
+            raise InvalidAnnotationError("Malformed list annotation: expected list[T]")
 
         if annotation is dict :
-            raise ValueError("Malformed dict annotation: expected dict[K, V]")
+            raise InvalidAnnotationError("Malformed dict annotation: expected dict[K, V]")
 
         origin = get_origin(annotation)
         args = get_args(annotation)
 
         if origin is list :
             if len(args) != 1 :
-                raise ValueError("Malformed list annotation: expected list[T]")
+                raise InvalidAnnotationError("Malformed list annotation: expected list[T]")
 
             element_type = self.resolve(args[ 0 ])
             return ListTypeSpec(element_type = element_type)
 
         if origin is dict :
             if len(args) != 2 :
-                raise ValueError("Malformed dict annotation: expected dict[K, V]")
+                raise InvalidAnnotationError("Malformed dict annotation: expected dict[K, V]")
 
             key_type = self.resolve(args[ 0 ])
             value_type = self.resolve(args[ 1 ])
@@ -51,4 +52,4 @@ class TypeResolver :
                 value_type = value_type,
             )
 
-        raise ValueError(f"Unsupported annotation: {annotation!r}")
+        raise UnsupportedTypeError(f"Unsupported annotation: {annotation!r}")

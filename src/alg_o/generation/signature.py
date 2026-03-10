@@ -2,6 +2,7 @@ import inspect
 from dataclasses import dataclass
 from typing import Callable
 
+from ..exception import GenerationError, InvalidAnnotationError
 from .base import DataGenerator, TypeSpec
 from .generators import build_generator
 from .resolver import TypeResolver
@@ -38,7 +39,7 @@ class SignatureGenerator :
 
         for parameter in signature.parameters.values() :
             if parameter.annotation is inspect._empty :
-                raise ValueError(
+                raise InvalidAnnotationError(
                     f"Parameter '{parameter.name}' has no type annotation",
                 )
 
@@ -56,7 +57,7 @@ class SignatureGenerator :
     def generate_arguments( self, size: int ) -> dict[ str, object ] :
         """Generate one argument value per parameter"""
         if size <= 0 :
-            raise ValueError("size must be strictly positive")
+            raise GenerationError("size must be strictly positive")
 
         arguments: dict[ str, object ] = { }
         for parameter in self._parameters :
