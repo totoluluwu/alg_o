@@ -11,7 +11,12 @@ SRC_DIR = ROOT_DIR / "src"
 if str(SRC_DIR) not in sys.path :
     sys.path.insert(0, str(SRC_DIR))
 
-from alg_o import generation
+from alg_o import (
+    GenerationError,
+    InvalidAnnotationError,
+    UnsupportedTypeError,
+    generation,
+)
 from alg_o.generation import (
     DataGenerator,
     DictGenerator,
@@ -127,11 +132,11 @@ class GenerationGeneratorsTests(unittest.TestCase) :
         self.assertEqual(len(value), 9)
 
     def test_generators_validate_positive_size( self ) -> None :
-        with self.assertRaisesRegex(ValueError, "strictly positive") :
+        with self.assertRaisesRegex(GenerationError, "strictly positive") :
             IntGenerator().generate(0)
-        with self.assertRaisesRegex(ValueError, "strictly positive") :
+        with self.assertRaisesRegex(GenerationError, "strictly positive") :
             FloatGenerator().generate(-1)
-        with self.assertRaisesRegex(ValueError, "strictly positive") :
+        with self.assertRaisesRegex(GenerationError, "strictly positive") :
             StringGenerator().generate(0)
 
     def test_list_generator_uses_reduced_child_size( self ) -> None :
@@ -172,7 +177,7 @@ class GenerationGeneratorsTests(unittest.TestCase) :
             value_generator = ConstantGenerator(1),
         )
 
-        with self.assertRaisesRegex(ValueError, "Unable to generate enough unique") :
+        with self.assertRaisesRegex(GenerationError, "Unable to generate enough unique") :
             generator.generate(3)
 
     def test_dict_generator_validate_positive_size( self ) -> None :
@@ -180,7 +185,7 @@ class GenerationGeneratorsTests(unittest.TestCase) :
             key_generator = ConstantGenerator("a"),
             value_generator = ConstantGenerator(1),
         )
-        with self.assertRaisesRegex(ValueError, "strictly positive") :
+        with self.assertRaisesRegex(GenerationError, "strictly positive") :
             generator.generate(0)
 
     def test_build_generator_primitives( self ) -> None :
@@ -206,11 +211,11 @@ class GenerationGeneratorsTests(unittest.TestCase) :
             key_type = ListTypeSpec(element_type = IntTypeSpec()),
             value_type = IntTypeSpec(),
         )
-        with self.assertRaisesRegex(ValueError, "Unsupported dictionary key type") :
+        with self.assertRaisesRegex(UnsupportedTypeError, "Unsupported dictionary key type") :
             build_generator(dict_spec)
 
     def test_build_generator_rejects_unsupported_spec( self ) -> None :
-        with self.assertRaisesRegex(ValueError, "Unsupported type specification") :
+        with self.assertRaisesRegex(UnsupportedTypeError, "Unsupported type specification") :
             build_generator(UnsupportedSpec())
 
 
@@ -244,23 +249,23 @@ class GenerationResolverTests(unittest.TestCase) :
         self.assertIsInstance(spec.value_type, ListTypeSpec)
 
     def test_resolve_malformed_list_builtin( self ) -> None :
-        with self.assertRaisesRegex(ValueError, "Malformed list annotation") :
+        with self.assertRaisesRegex(InvalidAnnotationError, "Malformed list annotation") :
             self.resolver.resolve(list)
 
     def test_resolve_malformed_dict_builtin( self ) -> None :
-        with self.assertRaisesRegex(ValueError, "Malformed dict annotation") :
+        with self.assertRaisesRegex(InvalidAnnotationError, "Malformed dict annotation") :
             self.resolver.resolve(dict)
 
     def test_resolve_malformed_list_typing( self ) -> None :
-        with self.assertRaisesRegex(ValueError, "Malformed list annotation") :
+        with self.assertRaisesRegex(InvalidAnnotationError, "Malformed list annotation") :
             self.resolver.resolve(typing.List)
 
     def test_resolve_malformed_dict_typing( self ) -> None :
-        with self.assertRaisesRegex(ValueError, "Malformed dict annotation") :
+        with self.assertRaisesRegex(InvalidAnnotationError, "Malformed dict annotation") :
             self.resolver.resolve(typing.Dict)
 
     def test_resolve_unsupported_type( self ) -> None :
-        with self.assertRaisesRegex(ValueError, "Unsupported annotation") :
+        with self.assertRaisesRegex(UnsupportedTypeError, "Unsupported annotation") :
             self.resolver.resolve(bool)
 
 
@@ -288,21 +293,21 @@ class GenerationSignatureTests(unittest.TestCase) :
         def target( a, b: int ) -> None :
             _ = (a, b)
 
-        with self.assertRaisesRegex(ValueError, "has no type annotation") :
+        with self.assertRaisesRegex(InvalidAnnotationError, "has no type annotation") :
             SignatureGenerator.from_function(target)
 
     def test_from_function_with_unsupported_annotation_raises( self ) -> None :
         def target( a: bool ) -> None :
             _ = a
 
-        with self.assertRaisesRegex(ValueError, "Unsupported annotation") :
+        with self.assertRaisesRegex(UnsupportedTypeError, "Unsupported annotation") :
             SignatureGenerator.from_function(target)
 
     def test_from_function_with_unsupported_dict_key_raises( self ) -> None :
         def target( a: dict[ list[ int ], int ] ) -> None :
             _ = a
 
-        with self.assertRaisesRegex(ValueError, "Unsupported dictionary key type") :
+        with self.assertRaisesRegex(UnsupportedTypeError, "Unsupported dictionary key type") :
             SignatureGenerator.from_function(target)
 
     def test_generate_arguments( self ) -> None :
@@ -336,7 +341,7 @@ class GenerationSignatureTests(unittest.TestCase) :
             _ = a
 
         signature_generator = SignatureGenerator.from_function(target)
-        with self.assertRaisesRegex(ValueError, "strictly positive") :
+        with self.assertRaisesRegex(GenerationError, "strictly positive") :
             signature_generator.generate_arguments(0)
 
     def test_generate_arguments_no_parameter_function( self ) -> None :

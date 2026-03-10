@@ -10,7 +10,7 @@ SRC_DIR = ROOT_DIR / "src"
 if str(SRC_DIR) not in sys.path :
     sys.path.insert(0, str(SRC_DIR))
 
-from alg_o import regression
+from alg_o import RegressionError, regression
 from alg_o.regression import (
     ComplexityModel,
     ConstantModel,
@@ -131,7 +131,7 @@ class RegressionEngineTests(unittest.TestCase) :
         )
 
     def test_empty_model_list_raises( self ) -> None :
-        with self.assertRaises(ValueError) :
+        with self.assertRaises(RegressionError) :
             RegressionEngine(models = [ ])
 
     def test_fit_linear_data_prefers_linear( self ) -> None :
@@ -171,19 +171,19 @@ class RegressionEngineTests(unittest.TestCase) :
         self.assertEqual(result.best_fit.predicted_times, [ 0.0, 0.0, 0.0 ])
 
     def test_validation_length_mismatch( self ) -> None :
-        with self.assertRaisesRegex(ValueError, "same length") :
+        with self.assertRaisesRegex(RegressionError, "same length") :
             RegressionEngine().fit([ 1, 2 ], [ 1.0 ])
 
     def test_validation_empty_lists( self ) -> None :
-        with self.assertRaisesRegex(ValueError, "must not be empty") :
+        with self.assertRaisesRegex(RegressionError, "must not be empty") :
             RegressionEngine().fit([ ], [ ])
 
     def test_validation_non_positive_size( self ) -> None :
-        with self.assertRaisesRegex(ValueError, "strictly positive") :
+        with self.assertRaisesRegex(RegressionError, "strictly positive") :
             RegressionEngine().fit([ 0, 2 ], [ 1.0, 2.0 ])
 
     def test_validation_negative_time( self ) -> None :
-        with self.assertRaisesRegex(ValueError, "non-negative") :
+        with self.assertRaisesRegex(RegressionError, "non-negative") :
             RegressionEngine().fit([ 1, 2 ], [ -1.0, 2.0 ])
 
     def test_edge_single_point_returns_first_model_on_tie( self ) -> None :
