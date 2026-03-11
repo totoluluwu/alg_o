@@ -34,7 +34,6 @@ pip install .
 
 ```python
 from alg_o.analysis import ComplexityEstimator
-from alg_o.benchmark import BenchmarkConfig, BenchmarkRunner
 
 
 def contains_zero(values: list[int]) -> bool:
@@ -43,6 +42,28 @@ def contains_zero(values: list[int]) -> bool:
             return True
     return False
 
+
+estimator = ComplexityEstimator()
+
+result = estimator.estimate(contains_zero)
+
+print(result.function_name)   # contains_zero
+print(result.best_complexity) # e.g. O(n)
+print(result.sizes)           # benchmarked sizes
+print(result.times)           # average times (seconds)
+```
+
+Default benchmark settings used by `ComplexityEstimator()`:
+
+- `sizes = [10, 100, 500, 1000]`
+- `repeat = 5`
+- `warmup = 1`
+
+Custom benchmark configuration is still supported:
+
+```python
+from alg_o.analysis import ComplexityEstimator
+from alg_o.benchmark import BenchmarkConfig, BenchmarkRunner
 
 config = BenchmarkConfig(
     sizes=[100, 500, 1_000, 5_000],
@@ -53,13 +74,6 @@ config = BenchmarkConfig(
 estimator = ComplexityEstimator(
     benchmark_runner=BenchmarkRunner(config),
 )
-
-result = estimator.estimate(contains_zero)
-
-print(result.function_name)   # contains_zero
-print(result.best_complexity) # e.g. O(n)
-print(result.sizes)           # benchmarked sizes
-print(result.times)           # average times (seconds)
 ```
 
 ## Writing Analyzable Functions
