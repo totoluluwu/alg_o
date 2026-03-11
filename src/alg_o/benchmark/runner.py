@@ -11,13 +11,9 @@ class BenchmarkRunner :
     """Run function benchmarks for configured input sizes"""
 
     def __init__( self, config: BenchmarkConfig | None = None ) -> None :
-        """Create a benchmark runner"""
+        """Create a benchmark runner with user or default configuration"""
         if config is None :
-            config = BenchmarkConfig(
-                sizes = [ 10, 100, 500, 1000 ],
-                repeat = 5,
-                warmup = 1,
-            )
+            config = BenchmarkConfig.default()
         self._config = config
 
     def run( self, func: Callable[ ..., object ] ) -> BenchmarkResult :
