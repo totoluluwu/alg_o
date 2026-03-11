@@ -11,7 +11,12 @@ if str(SRC_DIR) not in sys.path :
 
 from alg_o import AlgOError, BenchmarkError, RegressionError
 from alg_o.analysis import AnalysisResult, ComplexityEstimator
-from alg_o.benchmark import BenchmarkPoint, BenchmarkResult
+from alg_o.benchmark import (
+    BenchmarkConfig,
+    BenchmarkPoint,
+    BenchmarkResult,
+    BenchmarkRunner,
+)
 from alg_o.regression import ModelFitResult, RegressionResult
 
 
@@ -140,6 +145,51 @@ class ComplexityEstimatorTests(unittest.TestCase) :
         self.assertEqual(len(result.sizes), 4)
         self.assertEqual(len(result.times), 4)
         self.assertIsInstance(result.best_complexity, str)
+
+    def test_estimate_with_defaults_uses_default_benchmark_parameters( self ) -> None :
+        estimator = ComplexityEstimator()
+        call_count = { "total" : 0 }
+
+        def target( a: int ) -> None :
+            _ = a
+            call_count[ "total" ] += 1
+
+        result = estimator.estimate(target)
+
+        self.assertEqual(result.sizes, [ 10, 100, 500, 1000 ])
+        self.assertTrue(
+            all(
+                len(point.times) == 5
+                for point in result.benchmark_result.points
+            ),
+        )
+        self.assertEqual(call_count[ "total" ], 4 * (1 + 5))
+
+    def test_estimate_with_custom_runner_config_remains_supported( self ) -> None :
+        config = BenchmarkConfig(
+            sizes = [ 4, 8 ],
+            repeat = 2,
+            warmup = 0,
+        )
+        estimator = ComplexityEstimator(
+            benchmark_runner = BenchmarkRunner(config),
+        )
+        call_count = { "total" : 0 }
+
+        def target( a: int ) -> None :
+            _ = a
+            call_count[ "total" ] += 1
+
+        result = estimator.estimate(target)
+
+        self.assertEqual(result.sizes, [ 4, 8 ])
+        self.assertTrue(
+            all(
+                len(point.times) == 2
+                for point in result.benchmark_result.points
+            ),
+        )
+        self.assertEqual(call_count[ "total" ], 2 * 2)
 
     def test_estimate_orchestrates_custom_dependencies( self ) -> None :
         benchmark_result = _make_benchmark_result(function_name = "from-benchmark")

@@ -17,6 +17,7 @@ from alg_o.benchmark import (
     BenchmarkRunner,
 )
 from alg_o.benchmark.runner import BenchmarkRunner as BenchmarkRunnerImpl
+from alg_o.config import EstimationConfig
 
 
 class FailingSignatureGenerator :
@@ -43,6 +44,29 @@ class BenchmarkConfigTests(unittest.TestCase) :
         config = BenchmarkConfig(sizes = [ 1 ])
         with self.assertRaises(FrozenInstanceError) :
             config.repeat = 10
+
+    def test_default_factory( self ) -> None :
+        config = BenchmarkConfig.default()
+
+        self.assertEqual(config.sizes, [ 10, 100, 500, 1000 ])
+        self.assertEqual(config.repeat, 5)
+        self.assertEqual(config.warmup, 1)
+
+    def test_default_factory_returns_fresh_sizes_list( self ) -> None :
+        first = BenchmarkConfig.default()
+        second = BenchmarkConfig.default()
+
+        first.sizes.append(42)
+        self.assertEqual(second.sizes, [ 10, 100, 500, 1000 ])
+
+
+class EstimationConfigTests(unittest.TestCase) :
+
+    def test_default_reuses_benchmark_defaults( self ) -> None :
+        estimation = EstimationConfig.default()
+        expected_benchmark = BenchmarkConfig.default()
+
+        self.assertEqual(estimation.benchmark, expected_benchmark)
 
 
 class BenchmarkResultTests(unittest.TestCase) :
