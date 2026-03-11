@@ -13,9 +13,5 @@ class EstimationConfig :
     def default( cls ) -> "EstimationConfig" :
         """Build a default estimation configuration"""
         return cls(
-            benchmark = BenchmarkConfig(
-                sizes = [ 10, 100, 500, 1000 ],
-                repeat = 5,
-                warmup = 1,
-            ),
+            benchmark = BenchmarkConfig.default(),
         )
