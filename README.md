@@ -1,4 +1,11 @@
-# alg_o
+![Language](https://img.shields.io/badge/Language-Python-blue)
+![Type Hints](https://img.shields.io/badge/Typing-Type%20Hints-informational)
+![Status](https://img.shields.io/badge/Status-Active-success)
+![Focus](https://img.shields.io/badge/Focus-Complexity%20Analysis-purple)
+![Build](https://img.shields.io/badge/Build-pip%20%7C%20setuptools-orange)
+
+
+# Alg_o
 
 `alg_o` is a Python library whose purpose is to empirically estimate the time complexity of user-defined functions.
 
